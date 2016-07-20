@@ -1,9 +1,15 @@
-module.exports = function(ctx, cb) {
+var request = require('request-promise@1.0.2');
 
-  var exec = require('child_process').exec;
-  exec('curl ' + ctx.data.text, function(err, success){
-    if (err) return cb(err)
-    cb(null, success)
-  })
-  console.log(ctx)
+module.exports = function(ctx, cb) {
+  var url = ctx.data.text.split(" ").pop();
+
+  request(url)
+    .then(function(response){
+      cb(null, response);
+    })
+    .catch(function(error){
+      cb(error);
+    })
+
+  console.log(ctx);
 }
