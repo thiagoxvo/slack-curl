@@ -2,8 +2,11 @@ var request = require('request-promise@1.0.2');
 
 module.exports = function(ctx, cb) {
   var url = ctx.data.text.split(" ").pop();
-
-  request(url)
+  var options = {
+    uri: url,
+    resolveWithFullResponse: true
+  }
+  request(options)
     .then(function(response){
       console.log(response)
       cb(null, processResponse(url, response));
@@ -25,13 +28,18 @@ var processResponse = function(url, response) {
           "text",
           "fields"
       ],
-      "fields": [{
-          "title": "Headers",
-          // "value": "Awesome Project",
+      "fields": [
+        {
+          "title": "Response "+response.statusCode,
           "short": false
-      }, {
+        },
+        {
+          "title": "Headers",
+          "value": '```'+ JSON.stringify(response.headers) +'```',
+          "short": false
+        }, {
           "title": "Body",
-          "value": '```'+ response +'```',
+          "value": '```'+ response.body +'```',
           "short": false
       }]
     }]
