@@ -5,11 +5,34 @@ module.exports = function(ctx, cb) {
 
   request(url)
     .then(function(response){
-      cb(null, response);
+      console.log(response)
+      cb(null, processResponse(url, response));
     })
     .catch(function(error){
       cb(error);
     })
 
   console.log(ctx);
+}
+
+var processResponse = function(url, response) {
+  return {
+    text: "`curl "+ url +"`",
+    attachments: [{
+      "color": "#36a64f",
+      "mrkdwn_in": [
+          "text",
+          "fields"
+      ],
+      "fields": [{
+          "title": "Headers",
+          // "value": "Awesome Project",
+          "short": false
+      }, {
+          "title": "Body",
+          "value": '```'+ response +'```',
+          "short": false
+      }]
+    }]
+  }
 }
