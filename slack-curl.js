@@ -8,7 +8,10 @@ module.exports = function(ctx, cb) {
   }
   request(options)
     .then(function(response){
-      console.log(response)
+      if(!response.headers['content-type'].includes("application/json")) {
+        cb(null, { text: '`response headers should have application/json`' })
+        return
+      }
       cb(null, processResponse(url, response));
     })
     .catch(function(error){
