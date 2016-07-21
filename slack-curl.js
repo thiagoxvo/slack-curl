@@ -42,7 +42,7 @@ var processResponse = function(url, response) {
           "short": false
         }, {
           "title": "Body",
-          "value": '```'+ response.body +'```',
+          "value": '```'+ JSON.stringify(JSON.parse(response.body), null, 2) +'```',
           "short": false
       }]
     }]
