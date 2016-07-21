@@ -17,6 +17,7 @@ module.exports = function(ctx, cb) {
 
 var processResponse = function(url, response) {
   return {
+    response_type: "in_channel",
     text: "`curl "+ url +"`",
     attachments: [{
       "color": "#36a64f",
