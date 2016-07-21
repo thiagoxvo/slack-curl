@@ -1,6 +1,10 @@
 var request = require('request-promise@1.0.2');
 
 module.exports = function(ctx, cb) {
+  if (ctx.data.SLACK_COMMAND_TOKEN !== ctx.data.token)  {
+      return cb(null, "`Tokens don't match, make sure to use the token provided in the Slash Command integration (SLACK_COMMAND_TOKEN)`");
+  }
+
   var url = ctx.data.text.split(" ").pop();
   var options = {
     uri: url,
