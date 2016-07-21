@@ -38,7 +38,7 @@ var processResponse = function(url, response) {
         },
         {
           "title": "Headers",
-          "value": '```'+ JSON.stringify(response.headers) +'```',
+          "value": '```'+ JSON.stringify(response.headers, null, 2) +'```',
           "short": false
         }, {
           "title": "Body",
