@@ -4,7 +4,8 @@ module.exports = function(ctx, cb) {
   var url = ctx.data.text.split(" ").pop();
   var options = {
     uri: url,
-    resolveWithFullResponse: true
+    resolveWithFullResponse: true,
+    simple: false
   }
   request(options)
     .then(function(response){
@@ -15,18 +16,20 @@ module.exports = function(ctx, cb) {
       cb(null, processResponse(url, response));
     })
     .catch(function(error){
-      cb(error);
+      console.log(error);
+      cb(null, { text: 'error parsing curl: '+ error});
     })
 
   console.log(ctx);
 }
 
 var processResponse = function(url, response) {
+  var responseColor = (response.statusCode === 200) ? 'good' : 'danger'
   return {
     response_type: "in_channel",
     text: "`curl "+ url +"`",
     attachments: [{
-      "color": "#36a64f",
+      "color": responseColor,
       "mrkdwn_in": [
           "text",
           "fields"
