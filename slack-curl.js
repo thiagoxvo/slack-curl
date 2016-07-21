@@ -44,7 +44,7 @@ var processResponse = function(url, response) {
           "short": false
         },
         {
-          "title": "Headers",
+          "title": "Response Headers",
           "value": '```'+ JSON.stringify(response.headers, null, 2) +'```',
           "short": false
         }, {
