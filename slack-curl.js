@@ -8,9 +8,9 @@ module.exports = function(ctx, cb) {
   }
 
   var parsedArgs = parse(ctx.data.text)
-  var uri = parsedArgs.pop();
+  var uri = parsedArgs.pop().pattern;
   if(!/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/.test(uri)){
-    return cb(null, { text :'`invalid URI`'} )
+    return cb(null, { text :'`invalid URI ' + uri + '`'} )
   }
 
   var acceptedParams = ['-X', '-H']
