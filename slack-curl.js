@@ -13,6 +13,32 @@ module.exports = function(ctx, cb) {
     return cb(null, { text :'`invalid URI ' + uri + '`'} )
   }
 
+  var params = parseParams(parsedArgs)
+  var method = _.first(params['-X']) || 'GET';
+  var options = {
+    method: method,
+    uri: uri,
+    resolveWithFullResponse: true,
+    simple: false
+  }
+
+  request(options)
+    .then(function(response){
+      if(!response.headers['content-type'].includes("application/json")) {
+        cb(null, { text: '`response headers should have application/json`' })
+        return
+      }
+      cb(null, createSlackMessage(uri, method, response));
+    })
+    .catch(function(error){
+      console.log(error);
+      cb(null, { text: "`"+ error +"``" });
+    })
+
+  console.log(ctx);
+}
+
+var parseParams = function(parsedArgs){
   var acceptedParams = ['-X', '-H']
   var params = {}
   parsedArgs.forEach(function(param, index) {
@@ -23,34 +49,10 @@ module.exports = function(ctx, cb) {
       params[param].push(value) :
       params[param] = [value]
   })
-
-  var method = _.first(params['-X']) || 'GET';
-
-  console.log(params)
-
-  var options = {
-    method: method,
-    uri: uri,
-    resolveWithFullResponse: true,
-    simple: false
-  }
-  request(options)
-    .then(function(response){
-      if(!response.headers['content-type'].includes("application/json")) {
-        cb(null, { text: '`response headers should have application/json`' })
-        return
-      }
-      cb(null, processResponse(uri, method, response));
-    })
-    .catch(function(error){
-      console.log(error);
-      cb(null, { text: "`"+ error +"``" });
-    })
-
-  console.log(ctx);
+  return params
 }
 
-var processResponse = function(url, method, response) {
+var createSlackMessage = function(url, method, response) {
   var responseColor = (response.statusCode === 200) ? 'good' : 'danger'
   return {
     response_type: "in_channel",
