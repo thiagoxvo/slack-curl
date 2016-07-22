@@ -1,15 +1,35 @@
 var request = require('request-promise@1.0.2');
+var parse = require('shell-quote@1.4.3').parse;
+var _ = require('lodash@4.8.2')
 
 module.exports = function(ctx, cb) {
   if (ctx.data.SLACK_COMMAND_TOKEN !== ctx.data.token)  {
       return cb(null, "`Tokens don't match, make sure to use the token provided in the Slash Command integration (SLACK_COMMAND_TOKEN)`");
   }
-  var uri = ctx.data.text.split(" ").pop();
+
+  var parsedArgs = parse(ctx.data.text)
+  var uri = parsedArgs.pop();
   if(!/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/.test(uri)){
     return cb(null, { text :'`invalid URI`'} )
   }
 
+  var acceptedParams = ['-X', '-H']
+  var params = {}
+  parsedArgs.forEach(function(param, index) {
+    if(!_.includes(acceptedParams, param)) return;
+
+    var value = parsedArgs[index+1]
+    params[param] ?
+      params[param].push(value) :
+      params[param] = [value]
+  })
+
+  var method = _.first(params['-X']) || 'GET';
+
+  console.log(params)
+
   var options = {
+    method: method,
     uri: uri,
     resolveWithFullResponse: true,
     simple: false
@@ -20,7 +40,7 @@ module.exports = function(ctx, cb) {
         cb(null, { text: '`response headers should have application/json`' })
         return
       }
-      cb(null, processResponse(uri, response));
+      cb(null, processResponse(uri, method, response));
     })
     .catch(function(error){
       console.log(error);
@@ -30,12 +50,12 @@ module.exports = function(ctx, cb) {
   console.log(ctx);
 }
 
-var processResponse = function(url, response) {
+var processResponse = function(url, method, response) {
   var responseColor = (response.statusCode === 200) ? 'good' : 'danger'
   return {
     response_type: "in_channel",
-    text: "`curl "+ url +"`",
     attachments: [{
+      text: "`" + method + " " + url + "`",
       "color": responseColor,
       "mrkdwn_in": [
           "text",
@@ -47,11 +67,11 @@ var processResponse = function(url, response) {
           "short": false
         },
         {
-          "title": "Response Headers",
+          "title": "> Headers",
           "value": '```'+ JSON.stringify(response.headers, null, 2) +'```',
           "short": false
         }, {
-          "title": "Body",
+          "title": "> Body",
           "value": '```'+ JSON.stringify(JSON.parse(response.body), null, 2) +'```',
           "short": false
       }]
