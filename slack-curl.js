@@ -4,10 +4,13 @@ module.exports = function(ctx, cb) {
   if (ctx.data.SLACK_COMMAND_TOKEN !== ctx.data.token)  {
       return cb(null, "`Tokens don't match, make sure to use the token provided in the Slash Command integration (SLACK_COMMAND_TOKEN)`");
   }
+  var uri = ctx.data.text.split(" ").pop();
+  if(!/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(uri)){
+    return cb(null, { text :'`invalid URI`'} )
+  }
 
-  var url = ctx.data.text.split(" ").pop();
   var options = {
-    uri: url,
+    uri: uri,
     resolveWithFullResponse: true,
     simple: false
   }
@@ -17,11 +20,11 @@ module.exports = function(ctx, cb) {
         cb(null, { text: '`response headers should have application/json`' })
         return
       }
-      cb(null, processResponse(url, response));
+      cb(null, processResponse(uri, response));
     })
     .catch(function(error){
       console.log(error);
-      cb(null, { text: 'error parsing curl: '+ error});
+      cb(null, { text: "`"+ error +"``" });
     })
 
   console.log(ctx);
