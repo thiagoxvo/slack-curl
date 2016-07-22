@@ -5,7 +5,7 @@ module.exports = function(ctx, cb) {
       return cb(null, "`Tokens don't match, make sure to use the token provided in the Slash Command integration (SLACK_COMMAND_TOKEN)`");
   }
   var uri = ctx.data.text.split(" ").pop();
-  if(!/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(uri)){
+  if(!/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/.test(uri)){
     return cb(null, { text :'`invalid URI`'} )
   }
 
